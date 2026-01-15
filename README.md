@@ -13,3 +13,4 @@ The projetct is still in early development. More features and improvements will 
 - 2026-1-11: Initial commit with basic structure and README file.
 - 2026-1-12: Added client module for AI interaction and test script.
 - 2026-1-15: discord library added for bot integration. proxy support added in Discord.env.
+- 2026-1-16: Discord bot connectiong test successful with proxy support.
