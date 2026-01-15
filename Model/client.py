@@ -1,5 +1,6 @@
 import os
 from openai import OpenAI
+import datetime
 
 
 class AIClient(OpenAI):
@@ -87,17 +88,33 @@ class AIClient(OpenAI):
             assert self.base_url is not None, "Base URL is not set. Please set the base URL before getting response."
             assert self.api_key is not None, "API key is not set. Please set the apikey before getting response."
             self.querry = querry
-            response = self.chat.completions.create(
+            completion = self.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": self.prompt},
                     {"role": "user", "content": self.querry},
-                    {"role": "history", "content": '\n'.join(self.history)}
-                ]
+                    {"role": "assistant","content":"# History:\n" + '\n'.join(self.history)}
+                ],
+                stream=True,
+                extra_body={"enable_thinking": False}
             )
         
-            self.history.append(("user:" + self.querry,"response:" +  response.choices[0].message.content))
-            return response.choices[0].message.content
+            ## delete for stream response
+            # self.history.append(("user:" + self.querry,"response:" +  response.choices[0].message.content))
+            # return response.choices[0].message.content
+
+            # complete response with stream response
+            full_response = ""
+            print(f"\n--Log:{datetime.datetime.now()} - Receiving streamed response:")
+            for chunk in completion:
+                # extract content from each chunk
+                content = chunk.choices[0].delta.content
+                
+                if content:
+                    full_response += content
+                    print(content, end=" ") # Optional: print in console in real-time
+            self.history.append("user:" + self.querry + "response:" +  full_response)
+            return full_response
         except Exception as e:
             print(f"Error getting response: {e}")
             return None
