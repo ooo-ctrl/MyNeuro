@@ -12,7 +12,7 @@ load_dotenv('../../config/Discord.env')
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 # Because of the proxy issues, we need to set our own proxy settings for login Discord
-DISCORD_PROXY = os.getenv("DISCORD_PROXY")
+DISCORD_PROXY = os.getenv("DISCORD_PROXY", None)
 if DISCORD_PROXY:
     proxy = DISCORD_PROXY
     client = commands.Bot(command_prefix="!", intents=intents, proxy=proxy)
