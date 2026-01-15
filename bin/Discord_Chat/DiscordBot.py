@@ -1,3 +1,10 @@
+"""
+.env file should be placed in the config/ Discord.env
+Prameters needed:
+DISCORD_TOKEN=your_discord_bot_token_here
+DISCORD_PROXY=your_proxy_here_if_needed_else_NONE
+"""
+
 import discord
 from dotenv import load_dotenv
 import os

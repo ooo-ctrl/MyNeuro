@@ -1,3 +1,13 @@
+"""
+.env file should be placed in the config/ ClientConfig.env
+Prameters needed:
+API_KEY=your_api_key_here
+BASE_URL=your_base_url_here
+ORGANIZATION=your_organization_here
+PROJECT=your_project_here
+WEBHOOK_SECRET=your_webhook_secret_here
+MODEL=your_model_here
+"""
 from Model.client import AIClient
 import os
 from dotenv import load_dotenv
