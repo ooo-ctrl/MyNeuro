@@ -15,7 +15,7 @@ from Model.client import AIClient
 import asyncio
 import os
 from dotenv import load_dotenv
-from bin.Discord_Chat.DiscordBot import DISCORD_Client
+from bin.DiscordBot import DISCORD_Client
 
 def main():
     """
