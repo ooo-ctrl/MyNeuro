@@ -12,6 +12,8 @@ The projetct is still in early development. More features and improvements will 
 - Deploy <b>Qwen-Audio model</b> as main LLM for audio processing.
 - Add tools to complete the chat module for wechat.(wechat terminal version get from github repo:)----> (x) no API available for wechat
 - transfer to discord chatbot.
+- create a consolo to manage the environment variables and configurations.
+- set main system class to create a entire virtual object to manage all modules just as one entity.---->√ done
 
 # logs
 - 2026-1-11: Initial commit with basic structure and README file.
@@ -20,3 +22,7 @@ The projetct is still in early development. More features and improvements will 
 - 2026-1-16: Discord bot connectiong test successful with proxy support.
 - 2026-1-16: Streamed response handling implemented in AIClient.
 - 2026-1-16: LLM has connected to discord bot successfully.
+- 2026-1-20: reset AIClient to async mode for better performance.
+- 2026-1-20: use unstream response tempararily with async mode.
+- 2026-1-20: added log class
+- 2026-1-20: main program class created to manage all modules as one entity.

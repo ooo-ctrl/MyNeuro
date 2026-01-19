@@ -12,4 +12,6 @@
 # Discord.env
 --- required parameters for Discord Bot configuration ---
 - DISCORD_TOKEN=<Your_Discord_Bot_Token>
+
+--- Optional parameters ---
 - DISCORD_PROXY=<Your_Proxy_URL_if_needed>

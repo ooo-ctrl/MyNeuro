@@ -1,9 +1,9 @@
 import os
-from openai import OpenAI
+from openai import AsyncOpenAI
 import datetime
 
 
-class AIClient(OpenAI):
+class AIClient(AsyncOpenAI):
     """
     functions:
     use OpenAI client as base class to support multiple ai model providers.
@@ -47,7 +47,7 @@ class AIClient(OpenAI):
         self.history = []
         
         
-    def reset_model(self, api_key: str, base_url: str, organization = "Local_Model", model = None):
+    async def reset_model(self, api_key: str, base_url: str, organization = "Local_Model", model = None):
         """
         function: 
         offfer function to reset the api, model, base_url, organization dynamically.
@@ -67,7 +67,7 @@ class AIClient(OpenAI):
         self.organization = organization
         self.model = model
     
-    def set_prompt(self, new_prompt: str):
+    async def set_prompt(self, new_prompt: str):
         """
         change_prompt 的 Docstring
         
@@ -77,7 +77,7 @@ class AIClient(OpenAI):
         """
         self.prompt = new_prompt
     
-    def get_response(self, querry: str):
+    async def get_response(self, querry: str):
         """
         function:
         use function and querry to get response from the model.
@@ -88,38 +88,39 @@ class AIClient(OpenAI):
             assert self.base_url is not None, "Base URL is not set. Please set the base URL before getting response."
             assert self.api_key is not None, "API key is not set. Please set the apikey before getting response."
             self.querry = querry
-            completion = self.chat.completions.create(
+            completion = await self.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": self.prompt},
                     {"role": "user", "content": self.querry},
                     {"role": "assistant","content":"# History:\n" + '\n'.join(self.history)}
                 ],
-                stream=True,
+                # stream=True,
                 extra_body={"enable_thinking": False}
             )
         
-            ## delete for stream response
-            # self.history.append(("user:" + self.querry,"response:" +  response.choices[0].message.content))
-            # return response.choices[0].message.content
+            # add to history and return the full response
+            self.history.append(f"{datetime.datetime.now()}" + "user:" + self.querry + "response:" +  completion.choices[0].message.content)
+            return completion.choices[0].message.content
 
-            # complete response with stream response
-            full_response = ""
-            print(f"\n--Log:{datetime.datetime.now()} - Receiving streamed response:")
-            for chunk in completion:
-                # extract content from each chunk
-                content = chunk.choices[0].delta.content
+            # delete for unstream response
+            # # complete response with stream response
+            # full_response = ""
+            # print(f"\n--Log:{datetime.datetime.now()} - Receiving streamed response:")
+            # for chunk in completion:
+            #     # extract content from each chunk
+            #     content = chunk.choices[0].delta.content
                 
-                if content:
-                    full_response += content
-                    print(content, end=" ") # Optional: print in console in real-time
-            self.history.append("user:" + self.querry + "response:" +  full_response)
-            return full_response
+            #     if content:
+            #         full_response += content
+            #         print(content, end=" ") # Optional: print in console in real-time
+            # self.history.append("user:" + self.querry + "response:" +  full_response)
+            # return full_response
         except Exception as e:
             print(f"Error getting response: {e}")
             return None
     
-    def clear(self):
+    async def clear(self):
         """
         function:
         reset the history

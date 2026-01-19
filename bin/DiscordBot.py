@@ -45,16 +45,17 @@ class DISCORD_Client(discord.Client):
         self.proxy = proxy
         self.Bot = Bot
     
-    def run(self):
-        """
-        run with token saved;
-        if is in the async mode, it will let task into async loop
-        if not, it will start a async loop itself
-        """
-        if self.Is_async():
-            asyncio.create_task(self.start(self.token))
-        else:
-            super().run(self.token)
+    # remove for function replacement in MainProgram
+    # def run(self):
+    #     """
+    #     run with token saved;
+    #     if is in the async mode, it will let task into async loop
+    #     if not, it will start a async loop itself
+    #     """
+    #     if self.Is_async():
+    #         asyncio.create_task(self.start(self.token))
+    #     else:
+    #         super().run(self.token)
 
     def Is_async(self):
         """
@@ -94,7 +95,7 @@ class DISCORD_Client(discord.Client):
 
         # speak using the bot LLM
         if self.Bot is not None:
-            response = self.Bot.get_response(message.content)
+            response = await self.Bot.get_response(message.content)
             await message.channel.send(response)
         elif self.Bot is None:
             await message.channel.send("Bot LLM is not set. This is default response.")
