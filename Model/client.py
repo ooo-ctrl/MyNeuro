@@ -14,7 +14,7 @@ class AIClient(AsyncOpenAI):
     offer functions to set the model
     ......
     """
-    def __init__(self, *, api_key = None, organization = "Local_Model", project = None, webhook_secret = None, base_url = None, model = None):
+    def __init__(self, *, api_key = None, organization = "Local_Model", project = None, webhook_secret = None, base_url = None, model = None, logger = None):
         """
         __init__ Docstring
 
@@ -33,6 +33,7 @@ class AIClient(AsyncOpenAI):
         self.project = project
         self.webhook_secret = webhook_secret
         self.model = model
+        self.logger = logger
 
         super().__init__(
             api_key=self.api_key,
@@ -88,6 +89,7 @@ class AIClient(AsyncOpenAI):
             assert self.base_url is not None, "Base URL is not set. Please set the base URL before getting response."
             assert self.api_key is not None, "API key is not set. Please set the apikey before getting response."
             self.querry = querry
+            self.logger.info(f"Getting response for querry: {self.querry}")
             completion = await self.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -98,7 +100,7 @@ class AIClient(AsyncOpenAI):
                 # stream=True,
                 extra_body={"enable_thinking": False}
             )
-        
+            self.logger.info(f"response collected successfully.")
             # add to history and return the full response
             self.history.append(f"{datetime.datetime.now()}" + "user:" + self.querry + "response:" +  completion.choices[0].message.content)
             return completion.choices[0].message.content
@@ -126,3 +128,7 @@ class AIClient(AsyncOpenAI):
         reset the history
         """
         self.history = []
+        if self.logger is not None:
+            self.logger.info("History has been reset.")
+        else:
+            print("History has been reset, but logger is not set.")

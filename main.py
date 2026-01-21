@@ -61,12 +61,12 @@ class MainProgram:
             organization=self.Organization, 
             project=self.Project, 
             webhook_secret=self.Webhook_Secret, 
-            model=self.Model
+            model=self.Model,
+            logger=log("AIClient")
             )
         
         # initialize the Discord client
-        self.client = DISCORD_Client(token=self.DISCORD_TOKEN, proxy=self.DISCORD_PROXY, Bot=self.Bot)
-
+        self.client = DISCORD_Client(token=self.DISCORD_TOKEN, proxy=self.DISCORD_PROXY, Bot=self.Bot, logger=log("DISCORD_Client"))
         # set mode
         self.mode = mode
         self.logger.info(f"MainProgram initialized successfully in {self.mode} mode.")

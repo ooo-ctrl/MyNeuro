@@ -19,7 +19,7 @@ intents.message_content = True
 
 class DISCORD_Client(discord.Client):
 
-    def __init__(self, *, intents: discord.Intents = None, proxy: str = None, token: str = None, Bot: AIClient = None):
+    def __init__(self, *, intents: discord.Intents = None, proxy: str = None, token: str = None, Bot: AIClient = None, logger = None):
         """
         Create a customed Discord Client class.
 
@@ -44,6 +44,7 @@ class DISCORD_Client(discord.Client):
         self.token = token
         self.proxy = proxy
         self.Bot = Bot
+        self.logger = logger
     
     # remove for function replacement in MainProgram
     # def run(self):
@@ -95,8 +96,10 @@ class DISCORD_Client(discord.Client):
 
         # speak using the bot LLM
         if self.Bot is not None:
+            self.logger.info(f"Received message from {message.author}: {message.content}")
             response = await self.Bot.get_response(message.content)
             await message.channel.send(response)
+            self.logger.info(f"Sent response to {message.author}: {response}")
         elif self.Bot is None:
             await message.channel.send("Bot LLM is not set. This is default response.")
 
