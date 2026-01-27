@@ -58,7 +58,7 @@ class MainProgram:
         self.Bot = AIClient(
             api_key=self.Api_Key, 
             base_url=self.Base_Url, 
-            organization=self.Organization, 
+            organization=self.Organization if self.Organization else "Local_Model", 
             project=self.Project, 
             webhook_secret=self.Webhook_Secret, 
             model=self.Model,
@@ -66,7 +66,7 @@ class MainProgram:
             )
         
         # initialize the Discord client
-        self.client = DISCORD_Client(token=self.DISCORD_TOKEN, proxy=self.DISCORD_PROXY, Bot=self.Bot, logger=log("DISCORD_Client"))
+        self.client = DISCORD_Client(token=self.DISCORD_TOKEN, proxy=self.DISCORD_PROXY if self.DISCORD_PROXY else None, Bot=self.Bot, logger=log("DISCORD_Client"))
         # set mode
         self.mode = mode
         self.logger.info(f"MainProgram initialized successfully in {self.mode} mode.")
@@ -81,7 +81,13 @@ class MainProgram:
         else:
             debug = False
         self.logger.info("starting main program with debug mode set to " + str(debug))
-        asyncio.run(self.client.start(self.DISCORD_TOKEN), debug=debug)
+        try:
+            assert self.DISCORD_TOKEN is not None, "DISCORD_TOKEN is not set. Please set the DISCORD_TOKEN before running the bot."
+            asyncio.run(self.client.start(self.DISCORD_TOKEN), debug=debug)
+        except Exception as e:
+            self.logger.error(f"Error running the main program: {e}")
+            print(f"Error running the main program: {e}")
+            exit(-1)
 
     
         

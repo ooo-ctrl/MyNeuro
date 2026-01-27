@@ -1,6 +1,10 @@
 import os
 from openai import AsyncOpenAI
+import openai
 import datetime
+
+# catch some types for strict typing
+from openai.types.chat import ChatCompletionMessageParam
 
 
 class AIClient(AsyncOpenAI):
@@ -14,7 +18,17 @@ class AIClient(AsyncOpenAI):
     offer functions to set the model
     ......
     """
-    def __init__(self, *, api_key = None, organization = "Local_Model", project = None, webhook_secret = None, base_url = None, model = None, logger = None):
+    def __init__(
+            self, *, 
+            api_key:str, 
+            organization = "Local_Model", 
+            project = None, 
+            webhook_secret = None, 
+            base_url, 
+            model, 
+            logger,
+            prompt: str = ""
+            ):
         """
         __init__ Docstring
 
@@ -43,9 +57,8 @@ class AIClient(AsyncOpenAI):
             base_url=self.base_url
             )
         # create instance variables for prompt management
-        self.prompt = ""    
-        self.querry = ""
-        self.history = []
+          
+        self.message: list[ChatCompletionMessageParam] = [{"role": "system", "content": prompt}]
         
         
     async def reset_model(self, api_key: str, base_url: str, organization = "Local_Model", model = None):
@@ -76,7 +89,7 @@ class AIClient(AsyncOpenAI):
         :param new_prompt: the new prompt to set
         :type new_prompt: str
         """
-        self.prompt = new_prompt
+        self.message[0]["content"] = new_prompt
     
     async def get_response(self, querry: str):
         """
@@ -88,22 +101,32 @@ class AIClient(AsyncOpenAI):
             assert self.model is not None, "Model is not set. Please set the model before getting response."
             assert self.base_url is not None, "Base URL is not set. Please set the base URL before getting response."
             assert self.api_key is not None, "API key is not set. Please set the apikey before getting response."
-            self.querry = querry
-            self.logger.info(f"Getting response for querry: {self.querry}")
+            # add the querry to context message
+            self.message.append({"role": "user", "content": querry})
+
+            
+            self.logger.info(f"Getting response for querry: {querry}")
             completion = await self.chat.completions.create(
                 model=self.model,
-                messages=[
-                    {"role": "system", "content": self.prompt},
-                    {"role": "user", "content": self.querry},
-                    {"role": "assistant","content":"# History:\n" + '\n'.join(self.history)}
-                ],
+                messages=self.message,
                 # stream=True,
                 extra_body={"enable_thinking": False}
             )
             self.logger.info(f"response collected successfully.")
             # add to history and return the full response
-            self.history.append(f"{datetime.datetime.now()}" + "user:" + self.querry + "response:" +  completion.choices[0].message.content)
-            return completion.choices[0].message.content
+            try:
+                assert completion is not None, "Completion is None. Failed to get response from the model."
+                assert len(completion.choices) > 0, "No choices in completion. Failed to get response from the model."
+                assert completion.choices[0].message.content is not None, "Empty response from the model."
+                current_message = completion.choices[0].message.content
+
+                # add the response to history
+                self.message.append({"role": "assistant", "content": current_message})
+            except Exception as e:
+                self.logger.error(f"Error processing completion response: {e}")
+                print(f"Error processing completion response: {e}")
+                return None
+            return current_message
 
             # delete for unstream response
             # # complete response with stream response
@@ -119,6 +142,7 @@ class AIClient(AsyncOpenAI):
             # self.history.append("user:" + self.querry + "response:" +  full_response)
             # return full_response
         except Exception as e:
+            self.logger.error(f"Error getting response: {e}")
             print(f"Error getting response: {e}")
             return None
     
@@ -127,7 +151,7 @@ class AIClient(AsyncOpenAI):
         function:
         reset the history
         """
-        self.history = []
+        self.message = [self.message[0]]  # keep only the system prompt
         if self.logger is not None:
             self.logger.info("History has been reset.")
         else:
