@@ -19,7 +19,7 @@ intents.message_content = True
 
 class DISCORD_Client(discord.Client):
 
-    def __init__(self, *, intents: discord.Intents = None, proxy: str = None, token: str = None, Bot: AIClient = None, logger = None):
+    def __init__(self, *, intents: discord.Intents | None = None, proxy: str | None = None, token: str  | None = None, Bot: AIClient, logger):
         """
         Create a customed Discord Client class.
 
@@ -27,7 +27,7 @@ class DISCORD_Client(discord.Client):
         :param intents: the intents for the discord bot
         :type intents: discord.Intents
         :param proxy: the proxy for the discord bot
-        :type proxy: str
+        :type proxy: str | None
         """
         # if no intents provided, use default intents with message content enabled
         if intents is None:
